@@ -7,7 +7,9 @@ const morgan = require("morgan");
 // routes
 const userRoute = require("./routes/users");
 const authRoute = require("./routes/auth");
+const postRoute = require("./routes/posts");
 
+// define express app
 const app = express();
 
 dotenv.config();
@@ -29,9 +31,12 @@ app.get("/user", (req, res) => {
   res.send("Welcome to user page!");
 });
 
+// routes
 app.use("/api/users", userRoute);
 app.use("/api/auth", authRoute);
+app.use("/api/posts", postRoute);
 
+// port listener
 app.listen(8800, () => {
   console.log("Backend server is ready");
 });
