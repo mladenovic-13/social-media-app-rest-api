@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const helmet = require("helmet");
 const morgan = require("morgan");
+const multer = require("multer");
+const path = require("path");
+var cors = require("cors");
 
 // routes
 const userRoute = require("./routes/users");
@@ -19,16 +22,36 @@ mongoose.connect(process.env.MONGO_URL, { useUnifiedTopology: true }, (err) => {
   else console.log("MongoDB connected");
 });
 
+// path for static files
+app.use("/images", express.static(path.join(__dirname, "/public/images")));
+
 // middleware
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+  })
+);
 
-app.get("/", (req, res) => {
-  res.send("Welcome to homepage!");
+// handle uploaded files
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/images");
+  },
+  filename: (req, file, cb) => {
+    cb(null, req.body.name);
+  },
 });
-app.get("/user", (req, res) => {
-  res.send("Welcome to user page!");
+
+const upload = multer({ storage: storage });
+app.post("/api/upload", upload.single("file"), (req, res) => {
+  try {
+    return res.status(200).json("File uploded successfully");
+  } catch (error) {
+    console.error(error);
+  }
 });
 
 // routes
